@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from bs4 import BeautifulSoup
 import requests
+import os
 
 app = Flask(__name__)
 
@@ -57,5 +58,5 @@ def scrape_website():
 
     return jsonify({"data": data})
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True, port=os.getenv("PORT", default=5000))
