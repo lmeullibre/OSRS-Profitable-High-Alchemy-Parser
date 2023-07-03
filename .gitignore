@@ -1,0 +1,14 @@
+# Ignore the venv folder
+venv/
+
+# Ignore temporary files
+*.tmp
+
+# Ignore log files
+*.log
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore __pycache__ directory
+__pycache__/
