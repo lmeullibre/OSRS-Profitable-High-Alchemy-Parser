@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 
-@app.route('/scrape', methods=['GET'])
+@app.route('/', methods=['GET'])
 def scrape_website():
     url = "https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy"
     response = requests.get(url)
