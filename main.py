@@ -2,8 +2,14 @@ from flask import Flask, jsonify, request
 from bs4 import BeautifulSoup
 import requests
 import os
+import json
 
 app = Flask(__name__)
+
+# Load item data from JSON file
+item_data_url = "https://raw.githubusercontent.com/0xNeffarion/osrsreboxed-db/master/data/items/items-cache-data.json"
+response = requests.get(item_data_url)
+item_data_dict = json.loads(response.text)
 
 @app.route('/', methods=['GET'])
 def scrape_data():
@@ -16,18 +22,21 @@ def scrape_data():
     rows = table.select('tbody > tr')
     for row in rows:
         cols = row.select('td')
-        
+
         if len(cols) >= 10:
+            item_name = cols[1].get_text(strip=True)
+            item_id = get_item_id(item_name)
             item_data = {
-                "item": cols[1].get_text(strip=True),
-                "ge price": int(cols[2].get_text(strip=True).replace(',', '')),
-                "high alch": int(cols[3].get_text(strip=True).replace(',', '')),
+                "id": item_id,
+                "item": item_name,
+                "ge_price": int(cols[2].get_text(strip=True).replace(',', '')),
+                "high_alch": int(cols[3].get_text(strip=True).replace(',', '')),
                 "profit": int(cols[4].get_text(strip=True).replace(',', '')),
-                "roi%": round(float(cols[5].get_text(strip=True).replace('%', ''))/100, 4),
+                "roi": round(float(cols[5].get_text(strip=True).replace('%', ''))/100, 4),
                 "limit": int(cols[6].get_text(strip=True).replace(',', '')),
                 "volume": int(cols[7].get_text(strip=True).replace(',', '')),
-                "max profit": int(cols[8].get_text(strip=True).replace(',', '')),
-                "members": cols[9]['data-sort-value'].lower() == 'true', 
+                "max_profit": int(cols[8].get_text(strip=True).replace(',', '')),
+                "members": cols[9]['data-sort-value'].lower() == 'true',
             }
             data.append(item_data)
 
@@ -38,14 +47,22 @@ def scrape_data():
             data = [item for item in data if item['members'] is True]
         elif members.lower() == 'false':
             data = [item for item in data if item['members'] is False]
-    
-    data = sorted(data, key=lambda k: (k['volume'], k['max profit']), reverse=True)
+
+    data = sorted(data, key=lambda k: (k['volume'], k['max_profit']), reverse=True)
 
     # Add order to data
     for i, item in enumerate(data, start=1):
         item['order'] = i
 
     return jsonify(data)
+
+
+def get_item_id(item_name):
+    for item_id, item_data in item_data_dict.items():
+        if item_data['name'].lower() == item_name.lower():
+            return int(item_id)
+    return None
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))
