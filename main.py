@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from bs4 import BeautifulSoup
 import requests
 import os
@@ -31,6 +31,16 @@ def scrape_data():
                 "Members": cols[9]['data-sort-value'].lower() == 'true',  # Convert string to boolean
             }
             data.append(item_data)
+
+    members = request.args.get('members')
+
+    if members is not None:
+        if members.lower() == 'true':
+            data = [item for item in data if item['Members'] is True]
+        elif members.lower() == 'false':
+            data = [item for item in data if item['Members'] is False]
+    
+    data = sorted(data, key=lambda k: (k['Volume'], k['Max profit']), reverse=True)
 
     return jsonify(data)
 
