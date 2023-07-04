@@ -17,18 +17,17 @@ def scrape_data():
     for row in rows:
         cols = row.select('td')
         
-        # Ensure the row has enough columns
         if len(cols) >= 10:
             item_data = {
-                "Item": cols[1].get_text(strip=True),
-                "GE Price": int(cols[2].get_text(strip=True).replace(',', '')),
-                "High Alch": int(cols[3].get_text(strip=True).replace(',', '')),
-                "Profit": int(cols[4].get_text(strip=True).replace(',', '')),
-                "ROI%": round(float(cols[5].get_text(strip=True).replace('%', ''))/100, 4),
-                "Limit": int(cols[6].get_text(strip=True).replace(',', '')),
-                "Volume": int(cols[7].get_text(strip=True).replace(',', '')),
-                "Max profit": int(cols[8].get_text(strip=True).replace(',', '')),
-                "Members": cols[9]['data-sort-value'].lower() == 'true',  # Convert string to boolean
+                "item": cols[1].get_text(strip=True),
+                "ge price": int(cols[2].get_text(strip=True).replace(',', '')),
+                "high alch": int(cols[3].get_text(strip=True).replace(',', '')),
+                "profit": int(cols[4].get_text(strip=True).replace(',', '')),
+                "roi%": round(float(cols[5].get_text(strip=True).replace('%', ''))/100, 4),
+                "limit": int(cols[6].get_text(strip=True).replace(',', '')),
+                "volume": int(cols[7].get_text(strip=True).replace(',', '')),
+                "max profit": int(cols[8].get_text(strip=True).replace(',', '')),
+                "members": cols[9]['data-sort-value'].lower() == 'true', 
             }
             data.append(item_data)
 
@@ -36,11 +35,15 @@ def scrape_data():
 
     if members is not None:
         if members.lower() == 'true':
-            data = [item for item in data if item['Members'] is True]
+            data = [item for item in data if item['members'] is True]
         elif members.lower() == 'false':
-            data = [item for item in data if item['Members'] is False]
+            data = [item for item in data if item['members'] is False]
     
-    data = sorted(data, key=lambda k: (k['Volume'], k['Max profit']), reverse=True)
+    data = sorted(data, key=lambda k: (k['volume'], k['max profit']), reverse=True)
+
+    # Add order to data
+    for i, item in enumerate(data, start=1):
+        item['order'] = i
 
     return jsonify(data)
 
