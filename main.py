@@ -40,6 +40,25 @@ def scrape_data():
             }
             data.append(item_data)
 
+    nature_rune_url = "https://oldschool.runescape.wiki/w/Nature_rune"
+    response = requests.get(nature_rune_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    nature_rune_price = int(soup.select_one('.infobox-quantity').get_text(strip=True).split()[0].replace('coins', ''))
+
+    item_data = {
+        "id": get_item_id("Nature rune"),
+        "item": "Nature rune",
+        "ge_price": nature_rune_price,
+        "high_alch": 0,  
+        "profit": 0,      
+        "roi": 0.0,       
+        "limit": 0,       
+        "volume": 0,      
+        "max_profit": 0,  
+        "members": False,
+    }
+    data.append(item_data)        
+
     members = request.args.get('members')
 
     if members is not None:
