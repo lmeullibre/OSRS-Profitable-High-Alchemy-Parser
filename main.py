@@ -12,15 +12,6 @@ response = requests.get(item_data_url)
 item_data_dict = json.loads(response.text)
 
 
-def extract_member_status(col):
-    print(col)
-    try:
-        return col.get("data-sort-value", "false").lower() == "true"
-    except AttributeError as e:
-        print(f"Error extracting member status: {e}")
-        return False
-
-
 @app.route("/", methods=["GET"])
 def scrape_data():
     url = "https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy"
